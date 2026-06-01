@@ -1,6 +1,7 @@
 {
   "name": "@open-party-lab/game-pantomime",
   "version": "0.1.0",
+  "description": "Charades-style Open Party Lab game where one player performs prompts while the others guess.",
   "private": false,
   "license": "Apache-2.0",
   "type": "module",
@@ -35,7 +36,8 @@
   "files": [
     "dist",
     "README.md",
-    "AGENTS.md"
+    "AGENTS.md",
+    "docs"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
