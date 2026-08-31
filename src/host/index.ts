@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 import { pantomimeManifest } from "../manifest.js";
+import { renderRoundScreens } from "./roundScreens.js";
+import { bindPlatformTheme, tokens } from "./platformTheme.js";
 
 interface HostClientLike {
   subscribe(callback: (state: HostAppStateLike) => void): () => void;
@@ -23,7 +25,9 @@ interface PantomimeHostState {
 }
 
 const hostTheme = {
-  panel: "#111827",
+  get panel() {
+    return tokens().color.surface;
+  },
   titleFont: '"Space Grotesk", sans-serif',
   bodyFont: '"Nunito Sans", sans-serif'
 };
@@ -36,9 +40,15 @@ export class PantomimeHostScene extends Phaser.Scene {
   }
 
   create(): void {
+    bindPlatformTheme(this.registry);
     const client = this.registry.get("hostClient") as HostClientLike;
 
     this.unsubscribe = client.subscribe((state) => {
+      // Intro and result screens belong to this game, not the platform.
+      if (renderRoundScreens(this, state)) {
+        return;
+      }
+
       const gameState = (state.game?.state ?? {}) as PantomimeHostState;
       const en = state.room?.language === "en";
       const now = Date.now();
@@ -51,7 +61,7 @@ export class PantomimeHostScene extends Phaser.Scene {
         .text(this.scale.width * 0.5, 68, "Pantomime", {
           fontFamily: hostTheme.titleFont,
           fontSize: "64px",
-          color: "#f8fafc"
+          color: tokens().color.text
         })
         .setOrigin(0.5, 0);
 
@@ -63,7 +73,7 @@ export class PantomimeHostScene extends Phaser.Scene {
           {
             fontFamily: hostTheme.bodyFont,
             fontSize: "30px",
-            color: "#cbd5e1",
+            color: tokens().color.textSoft,
             align: "center",
             wordWrap: { width: this.scale.width - 140 }
           }
@@ -90,7 +100,7 @@ export class PantomimeHostScene extends Phaser.Scene {
         .text(this.scale.width * 0.5, 495, `${en ? "Time" : "Zeit"}: ${secondsLeft}s`, {
           fontFamily: hostTheme.bodyFont,
           fontSize: "36px",
-          color: "#f8fafc"
+          color: tokens().color.text
         })
         .setOrigin(0.5, 0);
 
@@ -98,7 +108,7 @@ export class PantomimeHostScene extends Phaser.Scene {
         .text(this.scale.width * 0.5, 560, en ? "Everyone else guesses out loud." : "Alle anderen raten laut.", {
           fontFamily: hostTheme.bodyFont,
           fontSize: "26px",
-          color: "#cbd5e1"
+          color: tokens().color.textSoft
         })
         .setOrigin(0.5, 0);
     });
