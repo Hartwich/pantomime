@@ -13,7 +13,7 @@ export const pantomimeManifest = {
   estimatedRoundDurationMs: 70_000,
 
   ownsScreens: ["round_intro", "result"],
-  visual: { accent: "#9a6f8c", eyebrow: "Acting" },
+  visual: { accent: "#9a6f8c", icon: "drama", eyebrow: "Acting" },
   audio: { track: { profile: "gentle", bpm: 112, rootMidi: 59, masterGain: 0.12 } },
 } as const satisfies GameManifest;
 
