@@ -70,3 +70,9 @@ For visual checks, start Open Party Lab, add virtual controllers when needed, an
 Code is licensed under the Apache License 2.0. See [LICENSE](LICENSE).
 
 Assets, generated media, word lists, prompts, and third-party references may need separate rights review before public store distribution.
+
+## Begriff und Rundenzeit
+
+Nur der aktive Darsteller erhält den geheimen Begriff auf seinem Controller. Mit **Erraten** deckt er ihn für alle auf. Die 60-Sekunden-Uhr läuft dabei unverändert bis zum Rundenende weiter; der aufgedeckte Begriff bleibt sichtbar. Pro Runde gibt es einen Begriff und einen Punkt für bestätigtes Erraten. Ohne Bestätigung gibt es keinen Punkt und der Begriff bleibt geheim.
+
+Regressionstest: npm test (Geheimhaltung, Berechtigung, Zeitlimit, Wertung und Rundenreset).

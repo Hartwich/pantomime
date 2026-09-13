@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { tokens } from "./platformTheme.js";
 import { pantomimeManifest } from "../manifest.js";
 
 /**
@@ -21,14 +22,14 @@ const OVERLAY_DEPTH = 10_000;
 
 /** Warm paper palette, matching the platform shell. */
 const theme = {
-  background: "#f7f1e7",
-  surface: "#fffbf4",
-  surfaceMuted: "#f3ece0",
-  ink: "#24313a",
-  inkSoft: "#3d4b55",
-  muted: "#697178",
-  line: "#ded5c7",
-  accent: "#9a6f8c",
+  get background() { return tokens().color.surface; },
+  get surface() { return tokens().color.surfaceRaised; },
+  get surfaceMuted() { return tokens().color.surfaceMuted; },
+  get ink() { return tokens().color.text; },
+  get inkSoft() { return tokens().color.textSoft; },
+  get muted() { return tokens().color.textSoft; },
+  get line() { return tokens().color.line; },
+  get accent() { return tokens().color.accentStrong; },
   titleFont: 'Georgia, "Iowan Old Style", "Times New Roman", serif',
   bodyFont: 'Inter, ui-sans-serif, -apple-system, "Segoe UI", sans-serif',
   monoFont: '"IBM Plex Mono", ui-monospace, Menlo, monospace'
@@ -322,3 +323,4 @@ export function renderRoundScreens(scene: Phaser.Scene, input: unknown): boolean
   clearOverlay(scene);
   return false;
 }
+

@@ -1,122 +1,80 @@
 import Phaser from "phaser";
 import { pantomimeManifest } from "../manifest.js";
+import type { PantomimeState } from "../protocol.js";
 import { renderRoundScreens } from "./roundScreens.js";
 import { bindPlatformTheme, tokens } from "./platformTheme.js";
 
+interface HostAppStateLike {
+  game?: { phase?: string; state?: unknown } | null;
+  room?: { language?: "de" | "en" } | null;
+}
 interface HostClientLike {
   subscribe(callback: (state: HostAppStateLike) => void): () => void;
 }
 
-interface HostAppStateLike {
-  game?: {
-    phase?: string;
-    state?: unknown;
-  } | null;
-  room?: {
-    language?: "de" | "en";
-  } | null;
-}
-
-interface PantomimeHostState {
-  actorName?: string;
-  secretTerm?: string;
-  finishAt?: number | null;
-  message?: string;
-}
-
-const hostTheme = {
-  get panel() {
-    return tokens().color.surface;
-  },
-  titleFont: '"Space Grotesk", sans-serif',
-  bodyFont: '"Nunito Sans", sans-serif'
-};
-
 export class PantomimeHostScene extends Phaser.Scene {
   private unsubscribe?: () => void;
+  private latest: HostAppStateLike = {};
+  private timerLabel?: Phaser.GameObjects.Text;
+  private lastSecond = -1;
 
-  constructor() {
-    super(pantomimeManifest.hostView);
-  }
+  constructor() { super(pantomimeManifest.hostView); }
 
   create(): void {
     bindPlatformTheme(this.registry);
     const client = this.registry.get("hostClient") as HostClientLike;
-
     this.unsubscribe = client.subscribe((state) => {
-      // Intro and result screens belong to this game, not the platform.
-      if (renderRoundScreens(this, state)) {
-        return;
-      }
-
-      const gameState = (state.game?.state ?? {}) as PantomimeHostState;
-      const en = state.room?.language === "en";
-      const now = Date.now();
-      const secondsLeft = Math.max(0, Math.ceil(((gameState.finishAt ?? now) - now) / 1000));
-
-      this.children.removeAll(true);
-      this.cameras.main.setBackgroundColor(hostTheme.panel);
-
-      this.add
-        .text(this.scale.width * 0.5, 68, "Pantomime", {
-          fontFamily: hostTheme.titleFont,
-          fontSize: "64px",
-          color: tokens().color.text
-        })
-        .setOrigin(0.5, 0);
-
-      this.add
-        .text(
-          this.scale.width * 0.5,
-          160,
-          gameState.message ?? (en ? "One player acts out a term." : "Ein Spieler stellt einen Begriff dar."),
-          {
-            fontFamily: hostTheme.bodyFont,
-            fontSize: "30px",
-            color: tokens().color.textSoft,
-            align: "center",
-            wordWrap: { width: this.scale.width - 140 }
-          }
-        )
-        .setOrigin(0.5, 0);
-
-      this.add
-        .text(this.scale.width * 0.5, 290, `${en ? "Actor" : "Darsteller"}: ${gameState.actorName ?? "?"}`, {
-          fontFamily: hostTheme.bodyFont,
-          fontSize: "40px",
-          color: "#fde047"
-        })
-        .setOrigin(0.5, 0);
-
-      this.add
-        .text(this.scale.width * 0.5, 365, gameState.secretTerm ?? "?", {
-          fontFamily: hostTheme.titleFont,
-          fontSize: "84px",
-          color: "#86efac"
-        })
-        .setOrigin(0.5, 0);
-
-      this.add
-        .text(this.scale.width * 0.5, 495, `${en ? "Time" : "Zeit"}: ${secondsLeft}s`, {
-          fontFamily: hostTheme.bodyFont,
-          fontSize: "36px",
-          color: tokens().color.text
-        })
-        .setOrigin(0.5, 0);
-
-      this.add
-        .text(this.scale.width * 0.5, 560, en ? "Everyone else guesses out loud." : "Alle anderen raten laut.", {
-          fontFamily: hostTheme.bodyFont,
-          fontSize: "26px",
-          color: tokens().color.textSoft
-        })
-        .setOrigin(0.5, 0);
+      this.latest = state;
+      this.render();
     });
-
+    const resize = () => this.render();
+    this.scale.on("resize", resize);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.unsubscribe?.();
       this.unsubscribe = undefined;
+      this.timerLabel = undefined;
+      this.scale.off("resize", resize);
     });
+  }
+
+  private render(): void {
+    this.timerLabel = undefined;
+    this.children.removeAll(true);
+    this.cameras.main.setBackgroundColor(tokens().color.surface);
+    if (renderRoundScreens(this, this.latest)) return;
+    const state = (this.latest.game?.state ?? {}) as Partial<PantomimeState>;
+    const en = this.latest.room?.language === "en";
+    const { width, height } = this.scale;
+    const scale = Math.min(width / 1100, height / 700);
+    const text = (y: number, content: string, size: number, soft = false) => this.add.text(
+      width / 2, height * y, content, {
+        fontFamily: tokens().font.display,
+        fontSize: `${size * scale}px`,
+        color: soft ? tokens().color.textSoft : tokens().color.text,
+        align: "center",
+        wordWrap: { width: width * 0.86 },
+        resolution: Math.min(window.devicePixelRatio || 1, 3)
+      }
+    ).setOrigin(0.5);
+    text(0.12, `${state.actorName ?? "…"} ${en ? "is acting" : "ist dran"}`, 38, true);
+    this.timerLabel = text(0.4, "", 150);
+    this.lastSecond = -1;
+    this.update();
+    if (state.revealedTerm) {
+      text(0.65, en ? "Guessed!" : "Erraten!", 28, true);
+      text(0.77, state.revealedTerm, 64);
+    } else {
+      text(0.75, en ? "Guess out loud" : "Ratet laut mit", 32, true);
+    }
+  }
+
+  update(): void {
+    if (!this.timerLabel) return;
+    const state = (this.latest.game?.state ?? {}) as Partial<PantomimeState>;
+    const seconds = Math.max(0, Math.ceil(((state.finishAt ?? Date.now()) - Date.now()) / 1000));
+    if (seconds === this.lastSecond) return;
+    this.lastSecond = seconds;
+    this.timerLabel.setText(`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`);
   }
 }
 

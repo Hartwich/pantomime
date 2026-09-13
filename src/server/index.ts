@@ -64,7 +64,7 @@ function pickActorIndex(seed: number, playerCount: number): number {
 }
 
 function buildPantomimeScore(state: PantomimeState): ScoreEntry[] {
-  return state.actorPlayerId
+  return state.actorPlayerId && state.guessedAt !== undefined
     ? [{ playerId: state.actorPlayerId, delta: 1, reason: "Pantomime erfolgreich praesentiert" }]
     : [];
 }
@@ -97,6 +97,8 @@ export const serverGame: ServerGame<PantomimeState, PantomimeInput> = {
         actorPlayerId: actor?.id,
         actorName: actor?.name ?? text.unknown,
         secretTerm,
+        guessedAt: undefined,
+        revealedTerm: undefined,
         finishAt: context.now + pantomimeRoundDurationMs
       },
       "playing",
@@ -107,8 +109,13 @@ export const serverGame: ServerGame<PantomimeState, PantomimeInput> = {
       }
     );
   },
-  handleInput(state) {
-    return state;
+  handleInput(state, input, context) {
+    if (state.phase !== "playing" || input.type !== "pantomime_guessed" ||
+        input.playerId !== state.actorPlayerId || state.guessedAt !== undefined ||
+        state.finishAt === null || context.now >= state.finishAt) {
+      return state;
+    }
+    return { ...state, guessedAt: context.now, revealedTerm: state.secretTerm };
   },
   tick(state, _deltaMs, context) {
     if (state.phase !== "playing" || state.finishAt === null || context.now < state.finishAt) {
@@ -117,7 +124,9 @@ export const serverGame: ServerGame<PantomimeState, PantomimeInput> = {
 
     return transitionRoundState(state, "locked", context.now, {
       durationMs: roundPhaseDurations.lockedMs,
-      message: pantomimeText[context.language].timeUp(state.secretTerm ?? "?")
+      message: state.revealedTerm
+        ? pantomimeText[context.language].timeUp(state.revealedTerm)
+        : context.language === "en" ? "Time is up. The term was not guessed." : "Zeit vorbei. Der Begriff wurde nicht erraten."
     });
   },
   isRoundFinished(state) {
@@ -125,5 +134,13 @@ export const serverGame: ServerGame<PantomimeState, PantomimeInput> = {
   },
   buildScore(state) {
     return buildPantomimeScore(state);
+  },
+  toPublicState(state) {
+    const { secretTerm: _secretTerm, ...publicState } = state;
+    return publicState;
+  },
+  toControllerStateForPlayer(state, _context, playerId) {
+    const { secretTerm, ...publicState } = state;
+    return playerId === state.actorPlayerId ? { ...publicState, secretTerm } : publicState;
   }
 };
