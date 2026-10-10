@@ -1,95 +1,69 @@
 import type { ControllerLayoutKey } from "@open-party-lab/game-core";
 import { pantomimeManifest } from "../manifest.js";
-
-interface ControllerGameRenderContext {
-  state: {
-    preferredLanguage?: "de" | "en";
-    room?: {
-      language?: "de" | "en";
-    } | null;
-    player?: {
-      id: string;
-    } | null;
-    game?: {
-      phase?: string;
-      state?: unknown;
-    } | null;
-  };
+import type { PantomimeState } from "../protocol.js";
+interface ControllerContext {
+  state: { getServerTime?: () => number; preferredLanguage?: "de" | "en"; room?: { language?: "de" | "en" } | null;
+    player?: { id: string } | null; game?: { phase?: string; state?: unknown } | null };
   onInput(input: unknown): void;
 }
-
-interface PantomimeControllerState {
-  actorPlayerId?: string;
-  actorName?: string;
-  secretTerm?: string;
-  guessedAt?: number;
-  revealedTerm?: string;
-  finishAt?: number | null;
-}
-
-function formatPhase(phase: string | undefined, language: "de" | "en" | undefined): string {
-  const en = language === "en";
-
-  switch (phase) {
-    case "round_intro":
-      return en ? "Round intro" : "Rundenstart";
-    case "countdown":
-      return en ? "Countdown" : "Countdown";
-    case "playing":
-      return en ? "Playing" : "Laeuft";
-    case "locked":
-      return en ? "Locked" : "Gesperrt";
-    case "finished":
-      return en ? "Finished" : "Beendet";
-    default:
-      return en ? "Waiting" : "Warten";
-  }
-}
-
 export const controllerGame = {
-  id: pantomimeManifest.id,
-  layoutKey: "choice" as ControllerLayoutKey,
-  buildLayout({ state, onInput }: ControllerGameRenderContext) {
-    const language = state.room?.language ?? state.preferredLanguage;
-    const en = language === "en";
-    const pantomimeState = (state.game?.state ?? {}) as PantomimeControllerState;
-    const isActor = state.player?.id === pantomimeState.actorPlayerId;
-    const now = Date.now();
-    const secondsLeft = Math.max(0, Math.ceil(((pantomimeState.finishAt ?? now) - now) / 1000));
-    const guessed = pantomimeState.guessedAt !== undefined;
-    const canGuess = isActor && state.game?.phase === "playing" && !guessed && secondsLeft > 0;
-
+  id: pantomimeManifest.id, layoutKey: "social_party" as ControllerLayoutKey,
+  buildLayout({ state, onInput }: ControllerContext) {
+    const game = (state.game?.state ?? {}) as Partial<PantomimeState>;
+    const language = state.room?.language ?? state.preferredLanguage ?? "de";
+    const en = language === "en", id = state.player?.id ?? "";
+    const actor = Boolean(id && id === game.actorPlayerId);
+    const own = game.players?.find((p) => p.id === id);
+    const eligible = Boolean(own && !actor && (game.mode !== "team" || own.teamId === game.actorTeamId));
+    const playing = state.game?.phase === "playing";
+    const acting = playing && game.stage === "acting";
+    const reviewing = playing && game.stage === "review";
+    const send = (input: Record<string, unknown>) => {
+      if (!playing || !id || !game.roundId || !own) return;
+      onInput({ ...input, playerId: id, roundId: game.roundId, turnNumber: game.turnNumber, wordToken: game.wordToken, sentAt: Date.now() });
+    };
+    const teamLabel = game.actorTeamId === "team1" ? "Team 1" : "Team 2";
     return {
-      kind: "choice",
-      title: isActor ? (en ? "Your turn!" : "Du bist dran!") : (en ? "Guess the term" : "Ratet den Begriff"),
-      subtitle: formatPhase(state.game?.phase, language),
-      helperText: guessed
-        ? `${en ? "Guessed" : "Erraten"}: ${pantomimeState.revealedTerm ?? ""}. ${en ? "The timer keeps running." : "Die Uhr läuft weiter."}`
-        : isActor
-        ? `${en ? "Act out" : "Stelle pantomimisch dar"}: ${pantomimeState.secretTerm ?? "?"}`
-        : `${pantomimeState.actorName ?? (en ? "A player" : "Ein Spieler")} ${en ? "is acting. Guess out loud." : "spielt pantomimisch. Bitte laut raten."}`,
-      disabled: !canGuess,
-      choices: [
-        {
-          id: "pantomime-guessed",
-          label: guessed ? (en ? "Guessed!" : "Erraten!") : isActor ? (en ? "Guessed" : "Erraten") : (en ? "Guess out loud" : "Laut mitraten"),
-          description: en ? "The actor confirms when the term is guessed." : "Der Darsteller bestätigt, sobald der Begriff erraten wurde.",
-          disabled: !canGuess,
-          onSelect: () => {
-            if (canGuess) onInput({ type: "pantomime_guessed", playerId: state.player!.id, sentAt: Date.now() });
-          }
-        }
-      ],
-      stats: [
-        {
-          label: en ? "Actor" : "Darsteller",
-          value: pantomimeState.actorName ?? "?"
-        },
-        {
-          label: en ? "Time" : "Zeit",
-          value: `${secondsLeft}s`
-        }
-      ]
+      kind: "social_party" as const, title: en ? "Charades" : "Pantomime", language,
+      stage: "waiting" as const, taskKind: "pick" as const,
+      statusLabel: !playing ? (en ? "Get ready" : "Gleich geht’s los")
+        : reviewing ? actor ? (en ? "Check the guesses" : "Treffer prüfen") : (en ? "Turn results" : "Zug-Auswertung")
+        : game.stage === "ready" ? actor ? (en ? "Reveal to start" : "Aufdecken & starten") : (en ? `${game.actorName ?? "…"} is next` : `${game.actorName ?? "…"} ist dran`)
+        : actor ? (en ? "Act this out!" : "Stelle diesen Begriff dar!")
+        : eligible ? (en ? "Guess out loud!" : "Rate laut mit!") : (en ? "Watch this turn" : "Schau diesem Zug zu"),
+      helperText: reviewing ? actor
+        ? (en ? "Remove incorrect claims or assign words to the right person. Continue when you are done." : "Nimm falsche Treffer zurück oder ordne Begriffe richtig zu. Erst mit Weiter geht es zur nächsten Person.")
+        : (en ? `${game.actorName ?? "…"} checks the claims and controls the handover.` : `${game.actorName ?? "…"} prüft die Treffer und gibt danach weiter.`)
+        : game.stage === "ready" ? actor
+          ? (en ? `Your ${(game.durationMs ?? 60000) / 1000} seconds start only when you reveal the first word.` : `Deine ${(game.durationMs ?? 60000) / 1000} Sekunden starten erst beim Aufdecken des ersten Begriffs.`)
+          : (en ? "The clock has not started yet." : "Die Zeit läuft noch nicht.")
+        : actor ? (en ? `Gestures only. Skips left: ${(game.skipLimit ?? 3) - (game.skipsUsed ?? 0)}.` : `Nur Gesten. Noch ${(game.skipLimit ?? 3) - (game.skipsUsed ?? 0)}× Weiter in diesem Zug.`)
+        : eligible ? (en ? "Tap Guessed only after saying the correct word. The next word appears immediately." : "Erst richtig laut raten, dann Erraten drücken. Danach kommt sofort der nächste Begriff.")
+        : game.mode === "team" && own ? (en ? `${teamLabel} is guessing. Your team is watching.` : `${teamLabel} rät. Dein Team schaut zu.`)
+        : (en ? "You can join from the next turn." : "Du spielst ab dem nächsten Zug mit."),
+      secret: actor && acting && game.secretTerm ? { label: en ? "Your word" : "Dein Begriff", term: game.secretTerm, initiallyVisible: true } : undefined,
+      score: game.mode === "team" && own ? game.teamScores?.[own.teamId] ?? 0 : game.gameScores?.[id] ?? 0,
+      deadline: acting ? game.finishAt ?? undefined : undefined,
+      getServerTime: state.getServerTime,
+      resetKey: `${game.roundId}:${game.turnNumber}:${game.stage}:${game.wordToken}`,
+      hasSubmitted: false, disabled: !playing, choices: [],
+      actions: !playing ? [] : actor && game.stage === "ready"
+        ? [{ id: "reveal", label: en ? "Reveal first word & start" : "Ersten Begriff aufdecken & starten", onPress: () => send({ type: "pantomime:reveal" }) }]
+        : actor && acting ? [{ id: "skip", label: en ? `Next · ${(game.skipLimit ?? 0) - (game.skipsUsed ?? 0)} skips left` : `Weiter · noch ${(game.skipLimit ?? 0) - (game.skipsUsed ?? 0)}×`,
+          disabled: (game.skipsUsed ?? 0) >= (game.skipLimit ?? 0), onPress: () => send({ type: "pantomime:skip" }) }]
+        : eligible && acting ? [{ id: "claim", label: en ? "Guessed!" : "Erraten!", onPress: () => send({ type: "pantomime:claim" }) }]
+        : actor && reviewing ? [{ id: "continue", label: en ? "Confirm & next actor →" : "Bestätigen & nächste Person →", onPress: () => send({ type: "pantomime:continue" }) }] : [],
+      review: reviewing ? {
+        title: en ? "Words & claims" : "Begriffe & Treffer", editable: actor,
+        unassignedLabel: en ? "No point" : "Kein Punkt",
+        entries: (game.entries ?? []).map((entry) => ({ id: entry.id, label: entry.term, selectedId: entry.guesserPlayerId ?? "",
+          note: entry.status === "skipped" ? (en ? "Skipped / removed" : "Übersprungen / zurückgenommen")
+            : entry.status === "timeout" ? (en ? "Time expired" : "Zeit abgelaufen") : undefined })),
+        options: (game.players ?? []).filter((p) => p.id !== game.actorPlayerId && (game.mode !== "team" || p.teamId === game.actorTeamId))
+          .map((p) => ({ id: p.id, label: p.name })),
+        onAssign: (entryId: string, guesserPlayerId: string) => send({ type: "pantomime:assign", entryId, guesserPlayerId: guesserPlayerId || null })
+      } : undefined,
+      onSubmitPick: () => {}, onVote: () => {}, onSubmitText: () => {}, onSubmitAvatar: () => {}, onSubmitMedia: () => {}
     };
   }
 } as const;

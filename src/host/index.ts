@@ -1,86 +1,91 @@
 import Phaser from "phaser";
 import { pantomimeManifest } from "../manifest.js";
 import type { PantomimeState } from "../protocol.js";
-import { renderRoundScreens } from "./roundScreens.js";
 import { bindPlatformTheme, tokens } from "./platformTheme.js";
-
-interface HostAppStateLike {
-  game?: { phase?: string; state?: unknown } | null;
-  room?: { language?: "de" | "en" } | null;
-}
-interface HostClientLike {
-  subscribe(callback: (state: HostAppStateLike) => void): () => void;
-}
+interface HostState { game?: { phase?: string; state?: unknown } | null; room?: { language?: "de" | "en" } | null; }
+interface HostClient { subscribe(callback: (state: HostState) => void): () => void; getServerTime?(): number; }
 
 export class PantomimeHostScene extends Phaser.Scene {
   private unsubscribe?: () => void;
-  private latest: HostAppStateLike = {};
-  private timerLabel?: Phaser.GameObjects.Text;
-  private lastSecond = -1;
-
+  private latest: HostState = {};
+  private root?: HTMLDivElement;
+  private timer?: HTMLElement;
+  private client?: HostClient;
   constructor() { super(pantomimeManifest.hostView); }
-
   create(): void {
     bindPlatformTheme(this.registry);
-    const client = this.registry.get("hostClient") as HostClientLike;
-    this.unsubscribe = client.subscribe((state) => {
-      this.latest = state;
-      this.render();
-    });
-    const resize = () => this.render();
-    this.scale.on("resize", resize);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      this.unsubscribe?.();
-      this.unsubscribe = undefined;
-      this.timerLabel = undefined;
-      this.scale.off("resize", resize);
-    });
+    const parent = this.game.canvas.parentElement;
+    this.root = document.createElement("div");
+    this.root.className = "pantomime-host";
+    parent?.append(this.root);
+    this.client = this.registry.get("hostClient") as HostClient;
+    this.unsubscribe = this.client.subscribe((state) => { this.latest = state; this.render(); });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.unsubscribe?.(); this.root?.remove(); this.root = undefined; this.timer = undefined; });
   }
-
   private render(): void {
-    this.timerLabel = undefined;
-    this.children.removeAll(true);
-    this.cameras.main.setBackgroundColor(tokens().color.surface);
-    if (renderRoundScreens(this, this.latest)) return;
+    if (!this.root) return;
+    const scroll = this.root.querySelector(".pm-words")?.scrollTop ?? 0;
+    this.root.replaceChildren(); this.timer = undefined;
     const state = (this.latest.game?.state ?? {}) as Partial<PantomimeState>;
     const en = this.latest.room?.language === "en";
-    const { width, height } = this.scale;
-    const scale = Math.min(width / 1100, height / 700);
-    const text = (y: number, content: string, size: number, soft = false) => this.add.text(
-      width / 2, height * y, content, {
-        fontFamily: tokens().font.display,
-        fontSize: `${size * scale}px`,
-        color: soft ? tokens().color.textSoft : tokens().color.text,
-        align: "center",
-        wordWrap: { width: width * 0.86 },
-        resolution: Math.min(window.devicePixelRatio || 1, 3)
-      }
-    ).setOrigin(0.5);
-    text(0.12, `${state.actorName ?? "…"} ${en ? "is acting" : "ist dran"}`, 38, true);
-    this.timerLabel = text(0.4, "", 150);
-    this.lastSecond = -1;
-    this.update();
-    if (state.revealedTerm) {
-      text(0.65, en ? "Guessed!" : "Erraten!", 28, true);
-      text(0.77, state.revealedTerm, 64);
-    } else {
-      text(0.75, en ? "Guess out loud" : "Ratet laut mit", 32, true);
+    const theme = tokens();
+    const style = document.createElement("style");
+    style.textContent = `
+      .pantomime-host{position:absolute;inset:0;z-index:5;box-sizing:border-box;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:22px;padding:clamp(20px,4vw,56px);background:${theme.color.surface};color:${theme.color.text};font-family:system-ui,sans-serif}
+      .pm-header{display:flex;align-items:center;justify-content:space-between;gap:24px}.pm-header h1{font:700 clamp(28px,4vw,54px)/1.1 Georgia,serif;margin:8px 0}.pm-kicker{color:${theme.color.textSoft};font-size:14px;text-transform:uppercase;letter-spacing:.12em}.pm-timer{font:700 clamp(38px,6vw,78px)/1 ui-monospace,monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+      .pm-body{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(240px,1fr);gap:40px;min-height:0}.pm-body section{min-width:0;min-height:0;display:flex;flex-direction:column}.pm-body h2{font-size:20px;margin:0 0 14px}.pm-words{overflow:auto;min-height:0;flex:1}.pm-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;padding:14px 0;border-bottom:1px solid ${theme.color.line};font-size:clamp(16px,1.8vw,24px);overflow-wrap:anywhere}.pm-row span:last-child{color:${theme.color.textSoft}}.pm-scores{overflow:auto}.pm-scores p{display:flex;justify-content:space-between;gap:16px;font-size:20px;margin:0;padding:10px 0;border-bottom:1px solid ${theme.color.line}}.pm-members{font-size:14px!important;color:${theme.color.textSoft};border:0!important}.pm-footer{font-size:clamp(16px,1.7vw,22px);color:${theme.color.textSoft};line-height:1.4}.pm-empty{font-size:clamp(22px,3vw,38px);line-height:1.3;color:${theme.color.textSoft};padding:30px 0;max-width:30ch}
+      @media(max-width:700px){.pm-body{grid-template-columns:1fr;overflow:auto;gap:24px}.pm-body section{min-height:180px}.pm-header{gap:12px}.pm-row{font-size:16px}.pantomime-host{gap:16px}}
+    `;
+    this.root.append(style);
+    const add = (parent: HTMLElement, tag: string, text: string, cls?: string) => {
+      const element = document.createElement(tag); element.textContent = text; if (cls) element.className = cls; parent.append(element); return element;
+    };
+    const header = add(this.root, "header", "", "pm-header");
+    const title = add(header, "div", "");
+    add(title, "div", `Pantomime · ${state.mode === "team" ? "Teams" : (en ? "Free-for-all" : "Jeder gegen jeden")} · ${en ? "Turn" : "Zug"} ${state.turnNumber ?? 1}`, "pm-kicker");
+    add(title, "h1", !state.actorPlayerId ? (en ? "Charades starts shortly" : "Pantomime startet gleich") : state.stage === "review" ? (en ? `${state.actorName ?? "…"} checks the guesses` : `${state.actorName ?? "…"} prüft die Treffer`)
+      : state.stage === "acting" ? (en ? `${state.actorName ?? "…"} is acting` : `${state.actorName ?? "…"} stellt dar`)
+      : (en ? `${state.actorName ?? "…"} is next` : `${state.actorName ?? "…"} ist dran`));
+    this.timer = add(header, "div", "", "pm-timer");
+    const body = add(this.root, "div", "", "pm-body");
+    const words = add(body, "section", "");
+    add(words, "h2", en ? "Words & guessers" : "Begriffe & Ratende");
+    const list = add(words, "div", "", "pm-words");
+    if (!state.entries?.length) add(list, "p", state.stage === "ready"
+      ? (en ? "The actor reveals their first word on the phone to start the clock." : "Der Darsteller deckt auf dem Handy den ersten Begriff auf. Erst dann läuft die Zeit.")
+      : (en ? "Guess out loud. Tap Guessed on your phone when you get it right." : "Ratet laut. Wer richtig liegt, drückt Erraten auf dem Handy."), "pm-empty");
+    for (const entry of state.entries ?? []) {
+      const row = add(list, "div", "", "pm-row");
+      add(row, "strong", entry.term);
+      const guesser = state.players?.find((p) => p.id === entry.guesserPlayerId);
+      add(row, "span", guesser ? `${guesser.name}${state.mode === "team" ? ` · ${guesser.teamId === "team1" ? "Team 1" : "Team 2"}` : ""}`
+        : entry.status === "timeout" ? (en ? "Unfinished" : "Offen bei Zeitablauf") : (en ? "No point / skipped" : "Kein Punkt / übersprungen"));
     }
+    list.scrollTop = state.stage === "review" ? scroll : list.scrollHeight;
+    const scores = add(body, "section", "");
+    add(scores, "h2", en ? "Standings" : "Punktestand");
+    const standings = add(scores, "div", "", "pm-scores");
+    if (state.mode === "team") {
+      for (const team of ["team1", "team2"] as const) {
+        const line = add(standings, "p", ""); add(line, "strong", team === "team1" ? "Team 1" : "Team 2"); add(line, "span", String(state.teamScores?.[team] ?? 0));
+        add(standings, "p", (state.players ?? []).filter((p) => p.teamId === team).map((p) => p.name).join(" · "), "pm-members");
+      }
+    } else for (const player of [...(state.players ?? [])].sort((a,b) => (state.gameScores?.[b.id] ?? 0) - (state.gameScores?.[a.id] ?? 0))) {
+      const line = add(standings, "p", ""); add(line, "span", player.name); add(line, "strong", String(state.gameScores?.[player.id] ?? 0));
+    }
+    add(this.root, "footer", state.stage === "review"
+      ? (en ? "Claims may be corrected. The next actor starts only after the current actor confirms." : "Treffer können korrigiert werden. Erst nach Bestätigung des Darstellers ist die nächste Person dran.")
+      : state.stage === "ready" ? (en ? "Waiting for the first reveal · no time is being used." : "Warten auf das erste Aufdecken · die Zeit läuft noch nicht.")
+      : `${en ? "Gestures only · skips remaining" : "Nur Gesten · Weiter übrig"}: ${(state.skipLimit ?? 3) - (state.skipsUsed ?? 0)}${state.mode === "team" ? ` · ${state.actorTeamId === "team1" ? "Team 1" : "Team 2"} ${en ? "is guessing" : "rät"}` : ""}`, "pm-footer");
+    this.update();
   }
-
   update(): void {
-    if (!this.timerLabel) return;
+    if (!this.timer) return;
     const state = (this.latest.game?.state ?? {}) as Partial<PantomimeState>;
-    const seconds = Math.max(0, Math.ceil(((state.finishAt ?? Date.now()) - Date.now()) / 1000));
-    if (seconds === this.lastSecond) return;
-    this.lastSecond = seconds;
-    this.timerLabel.setText(`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`);
+    const now = this.client?.getServerTime?.() ?? Date.now();
+    const seconds = state.stage === "acting" ? Math.max(0, Math.ceil(((state.finishAt ?? now) - now) / 1000)) : 0;
+    const label = state.stage === "ready" ? "—" : state.stage === "review" ? "✓" : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2,"0")}`;
+    if (this.timer.textContent !== label) this.timer.textContent = label;
   }
 }
-
-export const hostGame = {
-  id: pantomimeManifest.id,
-  displayName: pantomimeManifest.displayName,
-  sceneKey: pantomimeManifest.hostView,
-  scene: PantomimeHostScene
-} as const;
+export const hostGame = { id: pantomimeManifest.id, displayName: pantomimeManifest.displayName, sceneKey: pantomimeManifest.hostView, scene: PantomimeHostScene } as const;
