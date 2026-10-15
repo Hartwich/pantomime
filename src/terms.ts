@@ -343,17 +343,17 @@ const standardTerms = [
   {
     "id": "term-69",
     "de": "Koffer packen",
-    "en": "Packing a suitcase"
+    "en": "Packing luggage"
   },
   {
     "id": "term-70",
     "de": "Geschenk einpacken",
-    "en": "Wrapping a present"
+    "en": "Wrapping gifts"
   },
   {
     "id": "term-71",
     "de": "Wecker ausschalten",
-    "en": "Turning off an alarm"
+    "en": "Silencing alarms"
   },
   {
     "id": "term-72",
@@ -398,7 +398,7 @@ const standardTerms = [
   {
     "id": "term-80",
     "de": "Zitrone probieren",
-    "en": "Tasting a lemon"
+    "en": "Tasting lemons"
   },
   {
     "id": "term-81",
@@ -413,7 +413,7 @@ const standardTerms = [
   {
     "id": "term-83",
     "de": "Eis essen",
-    "en": "Eating ice cream"
+    "en": "Eating gelato"
   },
   {
     "id": "term-84",
@@ -423,37 +423,37 @@ const standardTerms = [
   {
     "id": "term-85",
     "de": "Banane schälen",
-    "en": "Peeling a banana"
+    "en": "Peeling bananas"
   },
   {
     "id": "term-86",
-    "de": "Heißen Tee trinken",
-    "en": "Drinking hot tea"
+    "de": "Tee trinken",
+    "en": "Drinking tea"
   },
   {
     "id": "term-87",
     "de": "Kokosnuss öffnen",
-    "en": "Opening a coconut"
+    "en": "Opening coconuts"
   },
   {
     "id": "term-88",
     "de": "Kuchen dekorieren",
-    "en": "Decorating a cake"
+    "en": "Decorating cakes"
   },
   {
     "id": "term-89",
     "de": "Regenschirm öffnen",
-    "en": "Opening an umbrella"
+    "en": "Opening umbrellas"
   },
   {
     "id": "term-90",
-    "de": "Drachen steigen lassen",
-    "en": "Flying a kite"
+    "de": "Drachensteigen",
+    "en": "Kite flying"
   },
   {
     "id": "term-91",
     "de": "Zelt aufbauen",
-    "en": "Putting up a tent"
+    "en": "Pitching tents"
   },
   {
     "id": "term-92",
@@ -473,67 +473,67 @@ const standardTerms = [
   {
     "id": "term-95",
     "de": "Hund ausführen",
-    "en": "Walking a dog"
+    "en": "Walking dogs"
   },
   {
     "id": "term-96",
     "de": "Mücke fangen",
-    "en": "Catching a mosquito"
+    "en": "Catching mosquitoes"
   },
   {
     "id": "term-97",
-    "de": "Durch Matsch laufen",
-    "en": "Walking through mud"
+    "de": "Matschwandern",
+    "en": "Mud walking"
   },
   {
     "id": "term-98",
-    "de": "Im Wind laufen",
-    "en": "Walking in the wind"
+    "de": "Gegenwind",
+    "en": "Headwind"
   },
   {
     "id": "term-99",
-    "de": "Auf Eis ausrutschen",
-    "en": "Slipping on ice"
+    "de": "Ausrutschen",
+    "en": "Slipping"
   },
   {
     "id": "term-100",
-    "de": "Barfuß über heißen Sand",
-    "en": "Walking on hot sand"
+    "de": "Heißer Sand",
+    "en": "Hot sand"
   },
   {
     "id": "term-101",
     "de": "Fahrrad fahren",
-    "en": "Riding a bicycle"
+    "en": "Riding bicycles"
   },
   {
     "id": "term-102",
     "de": "Auto einparken",
-    "en": "Parking a car"
+    "en": "Parking cars"
   },
   {
     "id": "term-103",
     "de": "Motorrad fahren",
-    "en": "Riding a motorcycle"
+    "en": "Motorcycle riding"
   },
   {
     "id": "term-104",
     "de": "Bus verpassen",
-    "en": "Missing a bus"
+    "en": "Missing buses"
   },
   {
     "id": "term-105",
     "de": "Reifen wechseln",
-    "en": "Changing a tyre"
+    "en": "Changing tyres"
   },
   {
     "id": "term-106",
     "de": "Fahrstuhl fahren",
-    "en": "Riding a lift"
+    "en": "Elevator riding"
   },
   {
     "id": "term-107",
-    "de": "Eine schwere Tür öffnen",
-    "en": "Opening a heavy door"
+    "de": "Tür aufstemmen",
+    "en": "Forcing doors"
   },
   {
     "id": "term-108",
@@ -542,23 +542,23 @@ const standardTerms = [
   },
   {
     "id": "term-109",
-    "de": "Auf einem Seil balancieren",
-    "en": "Balancing on a tightrope"
+    "de": "Seiltanz",
+    "en": "Tightrope walking"
   },
   {
     "id": "term-110",
-    "de": "Einen Schatz ausgraben",
-    "en": "Digging up treasure"
+    "de": "Schatz ausgraben",
+    "en": "Excavating treasure"
   },
   {
     "id": "term-111",
-    "de": "Eine Fliege verscheuchen",
-    "en": "Shooing a fly"
+    "de": "Fliege verscheuchen",
+    "en": "Shooing flies"
   },
   {
     "id": "term-112",
-    "de": "Einen Luftballon aufblasen",
-    "en": "Inflating a balloon"
+    "de": "Luftballon aufblasen",
+    "en": "Inflating balloons"
   },
   {
     "id": "term-113",
@@ -612,13 +612,13 @@ const standardTerms = [
   },
   {
     "id": "term-123",
-    "de": "Ein Baby beruhigen",
-    "en": "Soothing a baby"
+    "de": "Baby beruhigen",
+    "en": "Soothing babies"
   },
   {
     "id": "term-124",
-    "de": "Ein Selfie machen",
-    "en": "Taking a selfie"
+    "de": "Selfie machen",
+    "en": "Taking selfies"
   }
 ] as const;
 
@@ -626,28 +626,28 @@ const standardTerms = [
 const adultTerms = [
   {
     "id": "adult-1",
-    "de": "Kater am Morgen",
+    "de": "Morgenkater",
     "en": "Morning hangover"
   },
   {
     "id": "adult-2",
-    "de": "Betrunken nach Hause schleichen",
-    "en": "Sneaking home drunk"
+    "de": "Heimlich heimschleichen",
+    "en": "Sneaking home"
   },
   {
     "id": "adult-3",
-    "de": "Einen Cocktail mixen",
-    "en": "Mixing a cocktail"
+    "de": "Cocktail mixen",
+    "en": "Mixing cocktails"
   },
   {
     "id": "adult-4",
-    "de": "Ein Bierfass anzapfen",
-    "en": "Tapping a beer keg"
+    "de": "Bierfass anzapfen",
+    "en": "Keg tapping"
   },
   {
     "id": "adult-5",
-    "de": "Tequila mit Salz und Zitrone",
-    "en": "Tequila with salt and lemon"
+    "de": "Tequila trinken",
+    "en": "Drinking tequila"
   },
   {
     "id": "adult-6",
@@ -657,352 +657,352 @@ const adultTerms = [
   {
     "id": "adult-7",
     "de": "Bierpong spielen",
-    "en": "Playing beer pong"
+    "en": "Beer pong"
   },
   {
     "id": "adult-8",
-    "de": "Auf dem Tisch tanzen",
-    "en": "Dancing on a table"
+    "de": "Tischtanz",
+    "en": "Table dancing"
   },
   {
     "id": "adult-9",
-    "de": "An der Bar flirten",
-    "en": "Flirting at the bar"
+    "de": "Barflirt",
+    "en": "Bar flirting"
   },
   {
     "id": "adult-10",
-    "de": "Den Türsteher überzeugen",
-    "en": "Convincing the bouncer"
+    "de": "Türsteher überzeugen",
+    "en": "Convincing bouncers"
   },
   {
     "id": "adult-11",
-    "de": "High Heels auf Kopfsteinpflaster",
-    "en": "High heels on cobblestones"
+    "de": "High Heels",
+    "en": "High heels"
   },
   {
     "id": "adult-12",
-    "de": "Im Club den Bass spüren",
-    "en": "Feeling the bass at a club"
+    "de": "Club-Bass",
+    "en": "Club bass"
   },
   {
     "id": "adult-13",
-    "de": "Karaoke nach drei Drinks",
-    "en": "Karaoke after three drinks"
+    "de": "Betrunkenes Karaoke",
+    "en": "Drunken karaoke"
   },
   {
     "id": "adult-14",
-    "de": "Das letzte Taxi erwischen",
-    "en": "Catching the last taxi"
+    "de": "Taxi erwischen",
+    "en": "Catching taxis"
   },
   {
     "id": "adult-15",
-    "de": "Die Rechnung nach der Partynacht",
-    "en": "The bill after a night out"
+    "de": "Partyrechnung",
+    "en": "Party bill"
   },
   {
     "id": "adult-16",
-    "de": "Eine Runde Shots bestellen",
-    "en": "Ordering a round of shots"
+    "de": "Shots bestellen",
+    "en": "Ordering shots"
   },
   {
     "id": "adult-17",
-    "de": "Ein peinliches erstes Date",
-    "en": "An awkward first date"
+    "de": "Peinliches Date",
+    "en": "Awkward date"
   },
   {
     "id": "adult-18",
-    "de": "Ein heimlicher Kuss",
-    "en": "A secret kiss"
+    "de": "Heimlicher Kuss",
+    "en": "Secret kiss"
   },
   {
     "id": "adult-19",
-    "de": "Ein Knutschfleck",
-    "en": "A love bite"
+    "de": "Knutschfleck",
+    "en": "Love bite"
   },
   {
     "id": "adult-20",
-    "de": "Ein Heiratsantrag",
-    "en": "A marriage proposal"
+    "de": "Heiratsantrag",
+    "en": "Marriage proposal"
   },
   {
     "id": "adult-21",
-    "de": "Einen Liebesbrief verstecken",
-    "en": "Hiding a love letter"
+    "de": "Liebesbrief verstecken",
+    "en": "Hidden letter"
   },
   {
     "id": "adult-22",
-    "de": "Beim Fremdgehen erwischt",
+    "de": "Fremdgehen ertappt",
     "en": "Caught cheating"
   },
   {
     "id": "adult-23",
-    "de": "Den Ex auf einer Party treffen",
-    "en": "Meeting your ex at a party"
+    "de": "Ex treffen",
+    "en": "Ex encounter"
   },
   {
     "id": "adult-24",
-    "de": "Ein missglückter Anmachspruch",
-    "en": "A failed pickup line"
+    "de": "Missglückter Anmachspruch",
+    "en": "Failed flirting"
   },
   {
     "id": "adult-25",
-    "de": "Auf einer Dating-App wischen",
-    "en": "Swiping on a dating app"
+    "de": "Dating-App",
+    "en": "Dating app"
   },
   {
     "id": "adult-26",
-    "de": "Ein Blind Date suchen",
-    "en": "Looking for a blind date"
+    "de": "Blind Date",
+    "en": "Blind date"
   },
   {
     "id": "adult-27",
-    "de": "Einen romantischen Striptease tanzen",
-    "en": "Performing a romantic striptease"
+    "de": "Striptease",
+    "en": "Striptease"
   },
   {
     "id": "adult-28",
-    "de": "Eine Pole-Dance-Stange erklimmen",
-    "en": "Climbing a pole-dancing pole"
+    "de": "Poledance",
+    "en": "Pole dancing"
   },
   {
     "id": "adult-29",
-    "de": "In Handschellen feststecken",
-    "en": "Getting stuck in handcuffs"
+    "de": "Handschellen",
+    "en": "Handcuffs"
   },
   {
     "id": "adult-30",
-    "de": "Ein BH-Verschluss klemmt",
-    "en": "A stuck bra clasp"
+    "de": "BH öffnen",
+    "en": "Unhooking bras"
   },
   {
     "id": "adult-31",
-    "de": "Ein Kondom überziehen",
-    "en": "Putting on a condom"
+    "de": "Kondom überziehen",
+    "en": "Unrolling condoms"
   },
   {
     "id": "adult-32",
-    "de": "Ein Kondomautomat klemmt",
-    "en": "A jammed condom machine"
+    "de": "Kondomautomat",
+    "en": "Condom machine"
   },
   {
     "id": "adult-33",
-    "de": "Ein quietschendes Bett",
-    "en": "A squeaky bed"
+    "de": "Quietschendes Bett",
+    "en": "Squeaky bed"
   },
   {
     "id": "adult-34",
-    "de": "Sex im Auto",
-    "en": "Sex in a car"
+    "de": "Autosex",
+    "en": "Car sex"
   },
   {
     "id": "adult-35",
-    "de": "Sex unter der Dusche",
-    "en": "Sex in the shower"
+    "de": "Duschsex",
+    "en": "Shower sex"
   },
   {
     "id": "adult-36",
-    "de": "Ein Vibrator mit leerem Akku",
-    "en": "A vibrator with a dead battery"
+    "de": "Leerer Vibrator",
+    "en": "Dead vibrator"
   },
   {
     "id": "adult-37",
-    "de": "Eine Sexpuppe aufblasen",
-    "en": "Inflating a sex doll"
+    "de": "Sexpuppe aufblasen",
+    "en": "Inflatable doll"
   },
   {
     "id": "adult-38",
-    "de": "Ein Porno läuft versehentlich laut",
-    "en": "Accidentally playing porn out loud"
+    "de": "Lauter Porno",
+    "en": "Loud porn"
   },
   {
     "id": "adult-39",
-    "de": "Eine erotische Massage",
-    "en": "An erotic massage"
+    "de": "Erotische Massage",
+    "en": "Erotic massage"
   },
   {
     "id": "adult-40",
-    "de": "Ein One-Night-Stand schleicht hinaus",
-    "en": "A one-night stand sneaking out"
+    "de": "One-Night-Stand",
+    "en": "One-night stand"
   },
   {
     "id": "adult-41",
-    "de": "Beim Nacktsonnen überrascht",
-    "en": "Caught sunbathing naked"
+    "de": "Nacktsonnen",
+    "en": "Nude sunbathing"
   },
   {
     "id": "adult-42",
-    "de": "Die Unterhose im falschen Zimmer",
-    "en": "Underwear in the wrong room"
+    "de": "Vergessene Unterhose",
+    "en": "Forgotten underwear"
   },
   {
     "id": "adult-43",
-    "de": "Nackt aus dem Bad ausgesperrt",
-    "en": "Locked out of the bathroom naked"
+    "de": "Nackt ausgesperrt",
+    "en": "Locked-out nudist"
   },
   {
     "id": "adult-44",
-    "de": "Die Nachbarn beim Sex hören",
-    "en": "Hearing neighbours having sex"
+    "de": "Sexgeräusche",
+    "en": "Sex noises"
   },
   {
     "id": "adult-45",
-    "de": "Ein Joint wird gedreht",
-    "en": "Rolling a joint"
+    "de": "Joint drehen",
+    "en": "Rolling joints"
   },
   {
     "id": "adult-46",
-    "de": "Eine Bong benutzen",
-    "en": "Using a bong"
+    "de": "Bong benutzen",
+    "en": "Using bongs"
   },
   {
     "id": "adult-47",
-    "de": "Heißhunger nach dem Kiffen",
-    "en": "The munchies after smoking weed"
+    "de": "Kiffer-Heißhunger",
+    "en": "Cannabis munchies"
   },
   {
     "id": "adult-48",
-    "de": "Rauchmelder beim Rauchen auslösen",
-    "en": "Setting off a smoke alarm while smoking"
+    "de": "Rauchmelder auslösen",
+    "en": "Smoke alarm"
   },
   {
     "id": "adult-49",
-    "de": "Eine Zigarette im Regen anzünden",
-    "en": "Lighting a cigarette in the rain"
+    "de": "Zigarette anzünden",
+    "en": "Lighting cigarettes"
   },
   {
     "id": "adult-50",
     "de": "Nikotin-Pflaster aufkleben",
-    "en": "Applying a nicotine patch"
+    "en": "Nicotine patch"
   },
   {
     "id": "adult-51",
-    "de": "Eine Shisha vorbereiten",
-    "en": "Preparing a hookah"
+    "de": "Shisha vorbereiten",
+    "en": "Preparing hookahs"
   },
   {
     "id": "adult-52",
-    "de": "Der erste Zug an einer Zigarre",
-    "en": "The first puff of a cigar"
+    "de": "Zigarre rauchen",
+    "en": "Smoking cigars"
   },
   {
     "id": "adult-53",
-    "de": "Eine verstopfte Toilette",
-    "en": "A blocked toilet"
+    "de": "Verstopfte Toilette",
+    "en": "Blocked toilet"
   },
   {
     "id": "adult-54",
-    "de": "Kein Klopapier mehr",
-    "en": "Running out of toilet paper"
+    "de": "Klopapier fehlt",
+    "en": "Missing tissue"
   },
   {
     "id": "adult-55",
-    "de": "Einen Furz verbergen",
-    "en": "Hiding a fart"
+    "de": "Furz verbergen",
+    "en": "Hiding farts"
   },
   {
     "id": "adult-56",
-    "de": "In der Öffentlichkeit pinkeln",
-    "en": "Peeing in public"
+    "de": "Wildpinkeln",
+    "en": "Public urination"
   },
   {
     "id": "adult-57",
-    "de": "Mit voller Blase Schlange stehen",
-    "en": "Queuing with a full bladder"
+    "de": "Volle Blase",
+    "en": "Full bladder"
   },
   {
     "id": "adult-58",
     "de": "Intimrasur",
-    "en": "Shaving intimate areas"
+    "en": "Intimate shaving"
   },
   {
     "id": "adult-59",
-    "de": "Waxing im Intimbereich",
+    "de": "Intimwaxing",
     "en": "Intimate waxing"
   },
   {
     "id": "adult-60",
-    "de": "Ein Schwangerschaftstest",
-    "en": "A pregnancy test"
+    "de": "Schwangerschaftstest",
+    "en": "Pregnancy test"
   },
   {
     "id": "adult-61",
-    "de": "Beim Urologen",
-    "en": "At the urologist"
+    "de": "Urologenbesuch",
+    "en": "Urologist visit"
   },
   {
     "id": "adult-62",
-    "de": "Eine Prostatauntersuchung",
-    "en": "A prostate examination"
+    "de": "Prostatauntersuchung",
+    "en": "Prostate examination"
   },
   {
     "id": "adult-63",
-    "de": "Ein Tanga zwickt",
-    "en": "An uncomfortable thong"
+    "de": "Zwickender Tanga",
+    "en": "Uncomfortable thong"
   },
   {
     "id": "adult-64",
-    "de": "Einen Tampon einführen",
-    "en": "Inserting a tampon"
+    "de": "Tampon einführen",
+    "en": "Inserting tampons"
   },
   {
     "id": "adult-65",
-    "de": "Die Steuererklärung verzweifelt ausfüllen",
-    "en": "Desperately filing a tax return"
+    "de": "Steuererklärung",
+    "en": "Tax return"
   },
   {
     "id": "adult-66",
-    "de": "Dem Chef etwas vorspielen",
-    "en": "Putting on an act for the boss"
+    "de": "Chef anlügen",
+    "en": "Deceiving bosses"
   },
   {
     "id": "adult-67",
-    "de": "Im Büro heimlich schlafen",
-    "en": "Secretly sleeping at the office"
+    "de": "Büroschlaf",
+    "en": "Office nap"
   },
   {
     "id": "adult-68",
-    "de": "Montagmorgen nach dem Festival",
-    "en": "Monday morning after a festival"
+    "de": "Festival-Kater",
+    "en": "Festival hangover"
   },
   {
     "id": "adult-69",
-    "de": "Eine Gehaltserhöhung verlangen",
-    "en": "Asking for a pay rise"
+    "de": "Gehaltserhöhung verlangen",
+    "en": "Salary negotiation"
   },
   {
     "id": "adult-70",
-    "de": "Den Dispo im Banking entdecken",
-    "en": "Discovering an overdraft"
+    "de": "Dispo entdecken",
+    "en": "Overdraft discovery"
   },
   {
     "id": "adult-71",
-    "de": "Ein Strafzettel am Auto",
-    "en": "A parking ticket on your car"
+    "de": "Strafzettel",
+    "en": "Parking ticket"
   },
   {
     "id": "adult-72",
-    "de": "Den Ehering heimlich abziehen",
-    "en": "Secretly taking off a wedding ring"
+    "de": "Ehering abziehen",
+    "en": "Removing rings"
   },
   {
     "id": "adult-73",
-    "de": "Die Schwiegereltern stehen vor der Tür",
-    "en": "The in-laws at the door"
+    "de": "Schwiegerelternbesuch",
+    "en": "In-law visit"
   },
   {
     "id": "adult-74",
-    "de": "Eine Midlife-Crisis auf dem Motorrad",
-    "en": "A midlife crisis on a motorcycle"
+    "de": "Midlife-Crisis",
+    "en": "Midlife crisis"
   },
   {
     "id": "adult-75",
-    "de": "Ein Tattoo bereuen",
-    "en": "Regretting a tattoo"
+    "de": "Tattoo bereuen",
+    "en": "Tattoo regret"
   },
   {
     "id": "adult-76",
-    "de": "Piercing an einer empfindlichen Stelle",
-    "en": "A piercing in a sensitive place"
+    "de": "Intimpiercing",
+    "en": "Intimate piercing"
   }
 ] as const;
 

@@ -18,6 +18,8 @@ export const controllerGame = {
     const playing = state.game?.phase === "playing";
     const acting = playing && game.stage === "acting";
     const reviewing = playing && game.stage === "review";
+    const locked = acting && game.inputLockedUntil != null;
+    const guessFeedback = locked && game.lastGuess?.playerId === id ? game.lastGuess.term : undefined;
     const send = (input: Record<string, unknown>) => {
       if (!playing || !id || !game.roundId || !own) return;
       onInput({ ...input, playerId: id, roundId: game.roundId, turnNumber: game.turnNumber, wordToken: game.wordToken, sentAt: Date.now() });
@@ -42,6 +44,7 @@ export const controllerGame = {
         : game.mode === "team" && own ? (en ? `${teamLabel} is guessing. Your team is watching.` : `${teamLabel} rät. Dein Team schaut zu.`)
         : (en ? "You can join from the next turn." : "Du spielst ab dem nächsten Zug mit."),
       secret: actor && acting && game.secretTerm ? { label: en ? "Your word" : "Dein Begriff", term: game.secretTerm, initiallyVisible: true } : undefined,
+      feedback: guessFeedback ? { label: en ? "Guessed!" : "Erraten!", term: guessFeedback } : undefined,
       score: game.mode === "team" && own ? game.teamScores?.[own.teamId] ?? 0 : game.gameScores?.[id] ?? 0,
       deadline: acting ? game.finishAt ?? undefined : undefined,
       getServerTime: state.getServerTime,
@@ -50,8 +53,8 @@ export const controllerGame = {
       actions: !playing ? [] : actor && game.stage === "ready"
         ? [{ id: "reveal", label: en ? "Reveal first word & start" : "Ersten Begriff aufdecken & starten", onPress: () => send({ type: "pantomime:reveal" }) }]
         : actor && acting ? [{ id: "skip", label: en ? `Next · ${(game.skipLimit ?? 0) - (game.skipsUsed ?? 0)} skips left` : `Weiter · noch ${(game.skipLimit ?? 0) - (game.skipsUsed ?? 0)}×`,
-          disabled: (game.skipsUsed ?? 0) >= (game.skipLimit ?? 0), onPress: () => send({ type: "pantomime:skip" }) }]
-        : eligible && acting ? [{ id: "claim", label: en ? "Guessed!" : "Erraten!", onPress: () => send({ type: "pantomime:claim" }) }]
+          disabled: locked || (game.skipsUsed ?? 0) >= (game.skipLimit ?? 0), onPress: () => send({ type: "pantomime:skip" }) }]
+        : eligible && acting ? [{ id: "claim", label: en ? "Guessed!" : "Erraten!", disabled: locked, onPress: () => send({ type: "pantomime:claim" }) }]
         : actor && reviewing ? [{ id: "continue", label: en ? "Confirm & next actor →" : "Bestätigen & nächste Person →", onPress: () => send({ type: "pantomime:continue" }) }] : [],
       review: reviewing ? {
         title: en ? "Words & claims" : "Begriffe & Treffer", editable: actor,

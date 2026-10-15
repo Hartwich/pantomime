@@ -13,7 +13,7 @@ let state=initial();
 const globallyScored={...context,players:players.map(p=>({...p,score:900}))};
 assert.deepEqual(game.createInitialState(globallyScored).gameScores,{a:0,b:0,c:0,d:0});
 assert.deepEqual(game.buildScore(state,context),[]);
-const send=(s,type,playerId=s.actorPlayerId,extra={},now=2000,ctx=context)=>game.handleInput(s,{
+const send=(s,type,playerId=s.actorPlayerId,extra={},now=s.inputLockedUntil??2000,ctx=context)=>game.handleInput(s,{
  type,playerId,roundId:s.roundId,turnNumber:s.turnNumber,wordToken:s.wordToken,sentAt:now,...extra
 },{...ctx,now});
 assert.equal(state.stage,"ready");assert.equal(state.finishAt,null);assert.equal(state.secretTerm,undefined);
@@ -105,4 +105,52 @@ assert.equal(model(playing,"late").actions.length,0);
 assert.equal(pantomimeManifest.supportsTeams,true);
 assert.equal(pantomimeManifest.lobbySetup.fields.find(f=>f.id==="duration").defaultValue,60);
 assert.equal(pantomimeManifest.lobbySetup.fields.find(f=>f.id==="skips").defaultValue,3);
+
+for (const term of terms) for (const language of ["de", "en"]) {
+ assert.ok(term[language].trim().split(/\s+/u).length <= 2, `${term.id}: ${term[language]}`);
+}
+assert.equal(terms.length,200);
+let cooldown=send(initial(),"pantomime:reveal");
+const guessedTerm=cooldown.secretTerm;
+cooldown=send(cooldown,"pantomime:claim","b",{},3000);
+assert.equal(cooldown.inputLockedUntil,5000);
+assert.deepEqual(cooldown.lastGuess,{term:guessedTerm,playerId:"b"});
+for(const id of ["b","c","d"]) {
+ assert.equal(send(cooldown,"pantomime:claim",id,{},4999),cooldown,"all guessers are locked, including with the new word token");
+ assert.equal(model(cooldown,id).actions[0].disabled,true);
+}
+assert.equal(send(cooldown,"pantomime:skip","a",{},4999),cooldown);
+assert.equal(model(cooldown,"a").actions[0].disabled,true);
+assert.equal(model(cooldown,"b").feedback.term,guessedTerm);
+assert.equal(model(cooldown,"c").feedback,undefined);
+assert.equal(model(cooldown,"b").secret,undefined,"the new secret must stay actor-only");
+assert.equal(model(cooldown,"a").secret.term,cooldown.secretTerm);
+assert.equal(game.tick(cooldown,100,{...context,now:4999}),cooldown);
+const unlocked=game.tick(cooldown,100,{...context,now:5000});
+assert.equal(unlocked.inputLockedUntil,null);
+assert.equal(unlocked.lastGuess,undefined);
+assert.equal(model(unlocked,"b").feedback,undefined);
+assert.equal(model(unlocked,"b").actions[0].disabled,false);
+assert.equal(model(unlocked,"a").actions[0].disabled,false);
+const skipped=send(cooldown,"pantomime:skip","a",{},5000);
+assert.equal(skipped.skipsUsed,1);
+assert.equal(skipped.inputLockedUntil,7000);
+assert.equal(skipped.lastGuess,undefined);
+assert.equal(skipped.finishAt,cooldown.finishAt,"cooldowns must not extend the round");
+assert.equal(send(skipped,"pantomime:skip","a",{},6999),skipped);
+assert.equal(send(skipped,"pantomime:claim","c",{},6999),skipped);
+assert.equal(send(skipped,"pantomime:claim","c",{},7000).gameScores.c,1);
+const nearEnd=send(send(initial(),"pantomime:reveal"),"pantomime:claim","b",{},61900);
+const timedOut=game.tick(nearEnd,100,{...context,now:62000});
+assert.equal(timedOut.stage,"review");assert.equal(timedOut.inputLockedUntil,null);
+assert.equal(timedOut.lastGuess,undefined);
+const nextActor=send(timedOut,"pantomime:continue");
+assert.equal(nextActor.inputLockedUntil,null);assert.equal(nextActor.lastGuess,undefined);
+let teamCooldown=send(initial({pantomimeMode:"team"}),"pantomime:reveal");
+teamCooldown=send(teamCooldown,"pantomime:claim","c",{},3000);
+assert.equal(send(teamCooldown,"pantomime:claim","c",{},4999),teamCooldown);
+assert.equal(send(teamCooldown,"pantomime:skip","a",{},4999),teamCooldown);
+assert.equal(model(teamCooldown,"c").feedback.term,teamCooldown.lastGuess.term);
+assert.equal(teamCooldown.teamScores.team1,1);
+console.log("PASS: max two words in both languages, shared 2-second claim/skip lock, winner feedback, expiry, privacy, team mode and unchanged round timer");
 console.log("PASS: reveal starts clock, multi-word turns, shared skip budget, claims/races/privacy, review corrections and totals, manual handover, solo/team authorization and rotation, age pools, settings, reconnect and controllers");

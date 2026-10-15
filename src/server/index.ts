@@ -3,6 +3,8 @@ import { pantomimeManifest } from "../manifest.js";
 import type { PantomimeInput, PantomimeState, PantomimeTeamId } from "../protocol.js";
 import { terms } from "../terms.js";
 
+const inputLockMs = 2000;
+
 function numberSetting(value: unknown, fallback: number, min: number, max: number): number {
   if (value === undefined || value === null || value === "") return fallback;
   const n = Number(value);
@@ -40,7 +42,7 @@ function review(state: PantomimeState): PantomimeState {
   const entries = state.secretTerm ? [...state.entries, {
     id: `${state.turnNumber}:${state.wordToken}`, term: state.secretTerm, status: "timeout" as const
   }] : state.entries;
-  return { ...state, stage: "review", entries, secretTerm: undefined, finishAt: null };
+  return { ...state, stage: "review", entries, secretTerm: undefined, finishAt: null, inputLockedUntil: null, lastGuess: undefined };
 }
 function nextTurn(state: PantomimeState, context: ServerGameContext): PantomimeState {
   // Preserve team membership through reconnects; add late arrivals only between turns.
@@ -61,7 +63,7 @@ function nextTurn(state: PantomimeState, context: ServerGameContext): PantomimeS
   for (const player of players) gameScores[player.id] ??= 0;
   return { ...state, players, actorPlayerId: actor?.id, actorName: actor?.name, actorTeamId: actor?.teamId,
     actorHistory, turnNumber: state.turnNumber + 1, stage: "ready", skipsUsed: 0,
-    secretTerm: undefined, finishAt: null, entries: [], actorMissingSince: undefined,
+    secretTerm: undefined, finishAt: null, inputLockedUntil: null, lastGuess: undefined, entries: [], actorMissingSince: undefined,
     gameScores, turnBaseScores: { ...gameScores }, turnBaseTeamScores: { ...state.teamScores } };
 }
 
@@ -90,7 +92,7 @@ export const serverGame: ServerGame<PantomimeState, PantomimeInput, Omit<Pantomi
       durationMs: numberSetting(setting.pantomimeDurationSeconds, 60, 15, 300) * 1000,
       skipLimit: numberSetting(setting.pantomimeSkips, 3, 0, 10), skipsUsed: 0, turnNumber: 0, wordToken: 0,
       players: context.players.filter((p) => p.connected !== false).map((p, index) => ({ id: p.id, name: p.name, teamId: (index % 2 === 0 ? "team1" : "team2") as PantomimeTeamId })),
-      finishAt: null, entries: [], gameScores: Object.fromEntries(context.players.map((p) => [p.id, 0])), teamScores: { team1: 0, team2: 0 },
+      finishAt: null, inputLockedUntil: null, entries: [], gameScores: Object.fromEntries(context.players.map((p) => [p.id, 0])), teamScores: { team1: 0, team2: 0 },
       turnBaseScores: {}, turnBaseTeamScores: { team1: 0, team2: 0 }, actorHistory: [], usedTermIds: [] };
   },
   startRound(state, context) {
@@ -114,20 +116,25 @@ export const serverGame: ServerGame<PantomimeState, PantomimeInput, Omit<Pantomi
         ? { ...entry, status: target ? "guessed" : "skipped", guesserPlayerId: target ?? undefined } : entry) });
     }
     if (state.finishAt === null || context.now >= state.finishAt || input.wordToken !== state.wordToken) return state;
+    if (state.inputLockedUntil !== null && context.now < state.inputLockedUntil) return state;
     if (input.type === "pantomime:skip") {
       if (!actor || state.skipsUsed >= state.skipLimit) return state;
-      return draw({ ...state, skipsUsed: state.skipsUsed + 1, entries: [...state.entries, {
+      return draw({ ...state, inputLockedUntil: context.now + inputLockMs, lastGuess: undefined, skipsUsed: state.skipsUsed + 1, entries: [...state.entries, {
         id: `${state.turnNumber}:${state.wordToken}`, term: state.secretTerm!, status: "skipped"
       }] }, context);
     }
     if (input.type !== "pantomime:claim" || !mayGuess(state, input.playerId)) return state;
-    return draw(recalculate({ ...state, entries: [...state.entries, {
+    return draw(recalculate({ ...state, inputLockedUntil: context.now + inputLockMs,
+      lastGuess: { term: state.secretTerm!, playerId: input.playerId }, entries: [...state.entries, {
       id: `${state.turnNumber}:${state.wordToken}`, term: state.secretTerm!, status: "guessed", guesserPlayerId: input.playerId
     }] }), context);
   },
   tick(state, _deltaMs, context) {
     if (state.phase !== "playing") return state;
     if (state.stage === "acting" && state.finishAt !== null && context.now >= state.finishAt) return review(state);
+    if (state.inputLockedUntil !== null && context.now >= state.inputLockedUntil) {
+      state = { ...state, inputLockedUntil: null, lastGuess: undefined };
+    }
     if (state.stage === "acting" && !connected(context, state.actorPlayerId)) {
       if (state.actorMissingSince === undefined) return { ...state, actorMissingSince: context.now };
       if (context.now - state.actorMissingSince >= 15_000) return review(state);
@@ -139,7 +146,11 @@ export const serverGame: ServerGame<PantomimeState, PantomimeInput, Omit<Pantomi
   toPublicState(state, context) {
     const { secretTerm, usedTermIds, actorHistory, turnBaseScores, turnBaseTeamScores, ...publicState } = state;
     // The authoritative room clock excludes pauses; clients display wall-clock deadlines.
-    return { ...publicState, finishAt: state.finishAt === null ? null : Date.now() + Math.max(0, state.finishAt - context.now) };
+    const wallNow = Date.now();
+    const inputLockedUntil = state.inputLockedUntil !== null && state.inputLockedUntil > context.now
+      ? wallNow + state.inputLockedUntil - context.now : null;
+    return { ...publicState, inputLockedUntil, lastGuess: inputLockedUntil === null ? undefined : state.lastGuess,
+      finishAt: state.finishAt === null ? null : wallNow + Math.max(0, state.finishAt - context.now) };
   },
   toControllerStateForPlayer(state, context, playerId) {
     const publicState = this.toPublicState!(state, context);

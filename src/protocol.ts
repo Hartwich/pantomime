@@ -29,6 +29,8 @@ export interface PantomimeState extends BaseRoundState {
   actorTeamId?: PantomimeTeamId;
   secretTerm?: string;
   finishAt: number | null;
+  inputLockedUntil: number | null;
+  lastGuess?: { term: string; playerId: string };
   entries: PantomimeEntry[];
   actorMissingSince?: number;
   actorHistory?: string[];

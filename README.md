@@ -74,6 +74,8 @@ Assets, generated media, word lists, prompts, and third-party references may nee
 
 ## Begriff und Rundenzeit
 
+Alle Begriffe sind auf Deutsch und Englisch höchstens zwei Wörter lang. Nach einem Treffer zeigt der Controller der ratenden Person den erratenen Begriff zwei Sekunden lang als Bestätigung. Für diese zwei Sekunden sind „Erraten“ bei allen und „Weiter“ beim Darsteller gesperrt. Auch nach dem Überspringen eines Begriffs gilt dieselbe Zwei-Sekunden-Sperre. Die Sperre wird vom Server geprüft, läuft mit der pausierbaren Rundenzeit und verändert weder das Zeitlimit noch das Skip-Kontingent. Der nächste Begriff erscheint weiterhin sofort privat beim Darsteller.
+
 Im Setup stehen **U18**, **Ü18** und **Alle** zur Auswahl. U18 ist die Voreinstellung mit 124 familienfreundlichen Begriffen. Ü18 enthält 76 eigene Begriffe aus Sex, Beziehungen, Nachtleben und derben Alltagsszenen. Alle mischt beide Vorräte und richtet sich an erwachsene Gruppen. Sämtliche 200 Begriffe sind auf Deutsch und Englisch vorhanden; U18 enthält keine Ü18-Begriffe.
 
 Im Setup werden **Solo / Teams**, **15–300 Sekunden pro Darsteller** (Standard 60) und **0–10× Weiter pro Zug** (Standard 3) eingestellt. Es gibt keine Begriffsauswahl. Erst „Ersten Begriff aufdecken & starten“ zeigt einen zufälligen Begriff privat und startet die Zeit. Jeder Treffer bringt sofort den nächsten Begriff; die Uhr und das Skip-Kontingent laufen dabei unverändert weiter. Gespielte und übersprungene Begriffe wiederholen sich erst nach Durchlaufen des Vorrats.
