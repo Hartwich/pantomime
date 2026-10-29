@@ -1,3 +1,4 @@
+import { pantomimeText } from "./catalogText.js";
 import type { GameManifest } from "@open-party-lab/game-core";
 const rules = {
   de: [
@@ -14,7 +15,8 @@ const rules = {
   ]
 } as const;
 export const pantomimeManifest = {
-  id: "pantomime", displayName: "Pantomime", description: "Begriffe ohne Worte darstellen, Treffer sammeln und gemeinsam prüfen.",
+  id: "pantomime",
+  translations: pantomimeText, displayName: "Pantomime", description: "Begriffe ohne Worte darstellen, Treffer sammeln und gemeinsam prüfen.",
   minPlayers: 2, maxPlayers: 10,
   minPlayersBySetting: { settingKey: "pantomimeMode", values: { team: 4 } },
   hostView: "PantomimeHostScene", controllerView: "pantomime", controllerLayout: "social_party",

@@ -42,7 +42,7 @@ export class PantomimeHostScene extends Phaser.Scene {
     };
     const header = add(this.root, "header", "", "pm-header");
     const title = add(header, "div", "");
-    add(title, "div", `Pantomime · ${state.mode === "team" ? "Teams" : (en ? "Free-for-all" : "Jeder gegen jeden")} · ${en ? "Turn" : "Zug"} ${state.turnNumber ?? 1}`, "pm-kicker");
+    add(title, "div", `${en ? "Charades" : "Pantomime"} · ${state.mode === "team" ? "Teams" : (en ? "Free-for-all" : "Jeder gegen jeden")} · ${en ? "Turn" : "Zug"} ${state.turnNumber ?? 1}`, "pm-kicker");
     add(title, "h1", !state.actorPlayerId ? (en ? "Charades starts shortly" : "Pantomime startet gleich") : state.stage === "review" ? (en ? `${state.actorName ?? "…"} checks the guesses` : `${state.actorName ?? "…"} prüft die Treffer`)
       : state.stage === "acting" ? (en ? `${state.actorName ?? "…"} is acting` : `${state.actorName ?? "…"} stellt dar`)
       : (en ? `${state.actorName ?? "…"} is next` : `${state.actorName ?? "…"} ist dran`));

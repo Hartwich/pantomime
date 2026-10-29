@@ -182,7 +182,7 @@ function renderIntro(scene: Phaser.Scene, state: RoundScreenState): void {
     layer,
     scene.scale.width / 2,
     scene.scale.height / 2 - 60,
-    pantomimeManifest.displayName,
+    pantomimeManifest.translations[state.language].displayName,
     {
       fontFamily: theme.titleFont,
       fontSize: "56px",
@@ -220,7 +220,7 @@ function renderResult(scene: Phaser.Scene, state: RoundScreenState): void {
     fontSize: "44px",
     color: theme.ink
   });
-  addText(scene, layer, panelX, 122, state.message ?? pantomimeManifest.displayName, {
+  addText(scene, layer, panelX, 122, state.message ?? pantomimeManifest.translations[state.language].displayName, {
     fontFamily: theme.bodyFont,
     fontSize: "20px",
     color: theme.muted,
