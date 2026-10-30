@@ -1,5 +1,7 @@
 # Pantomime
 
+Supports 2–20 players in solo mode and 4–20 players in team mode.
+
 Charades-style Open Party Lab game where one player performs prompts while the others guess.
 
 ![In-game screenshot](docs/screenshots/host.png)

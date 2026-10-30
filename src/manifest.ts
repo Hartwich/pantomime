@@ -17,7 +17,7 @@ const rules = {
 export const pantomimeManifest = {
   id: "pantomime",
   translations: pantomimeText, displayName: "Pantomime", description: "Begriffe ohne Worte darstellen, Treffer sammeln und gemeinsam prüfen.",
-  minPlayers: 2, maxPlayers: 10,
+  minPlayers: 2, maxPlayers: 20,
   minPlayersBySetting: { settingKey: "pantomimeMode", values: { team: 4 } },
   hostView: "PantomimeHostScene", controllerView: "pantomime", controllerLayout: "social_party",
   scoreScope: "game", controllerChrome: { bare: true, hideScore: true },
